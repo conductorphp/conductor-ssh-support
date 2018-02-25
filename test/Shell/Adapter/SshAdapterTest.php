@@ -2,92 +2,106 @@
 
 namespace ConductorSshSupportTest;
 
-use ConductorSshSupport\Crypt\Crypt;
+use ConductorSshSupport\Shell\Adapter\SshAdapter;
+use phpseclib\Crypt\RSA;
+use phpseclib\Net\SSH2;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ProphecyInterface;
 
-class SshCommandHelperTest extends TestCase
+class SshAdapterTest extends TestCase
 {
     /**
-     * @var Crypt
+     * @var ProphecyInterface
      */
-    private $crypt;
+    private $client;
 
     public function setUp()
     {
-        $this->crypt = new Crypt();
+        $client = $this->prophesize(SSH2::class);
+        $client->login(Argument::type('string'), Argument::type('string'))->willReturn(true);
+        $client->exec(Argument::type('string'))->willReturn('');
+        $client->getExitStatus()->willReturn(0);
+        $client->getStdError()->willReturn('Standard error');
+        $this->client = $client;
     }
 
-    public function testGenerateKey()
+    public function testThrowsExceptionWithBadLogin()
     {
-        $this->assertInternalType('string', $this->crypt->generateKey());
+        $this->client->login(Argument::type('string'), Argument::type('string'))->willReturn(false);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+
+        $this->expectException(\ConductorCore\Exception\RuntimeException::class);
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $adapter->isCallable('anycommand');
     }
 
-    public function testEncrypt()
+    public function testKeyLogin()
     {
-        $ciphertext = $this->crypt->encrypt(self::TEST_MESSAGE, self::TEST_KEY);
-        $this->assertNotEquals(self::TEST_MESSAGE, $ciphertext);
+        $this->client->login(Argument::type('string'), Argument::type(RSA::class))->willReturn(true);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+
+        $adapter = new SshAdapter($client, 'anyusername', 'anykey');
+        $this->assertTrue($adapter->isCallable('anycommand'));
     }
 
-    public function testDecrypt()
+    public function testKeyPasswordLogin()
     {
-        $ciphertext = $this->crypt->encrypt(self::TEST_MESSAGE, self::TEST_KEY);
-        $message = $this->crypt->decrypt($ciphertext, self::TEST_KEY);
-        $this->assertEquals(self::TEST_MESSAGE, $message);
+        $this->client->login(Argument::type('string'), Argument::type(RSA::class))->willReturn(true);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+
+        $adapter = new SshAdapter($client, 'anyusername', 'anykey', 'anypassword');
+        $this->assertTrue($adapter->isCallable('anycommand'));
     }
 
-    public function testDecryptExpressiveConfigWithNoKey()
+    public function testPasswordLogin()
     {
-        $ciphertext = $this->crypt->encrypt(self::TEST_MESSAGE, self::TEST_KEY);
-        $config = [
-            'plaintext' => self::TEST_MESSAGE,
-            'encrypted' => "ENC[defuse/php-encryption,$ciphertext]",
-        ];
-
-        $generator = $this->crypt::decryptExpressiveConfig($config);
-        $config = [];
-        foreach ($generator() as $data) {
-            $config = array_replace_recursive($config, $data);
-        }
-        $this->assertEquals(self::TEST_MESSAGE, $config['plaintext']);
-        $this->assertEquals("ENC[defuse/php-encryption,$ciphertext]", $config['encrypted']);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+        
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $this->assertTrue($adapter->isCallable('anycommand'));
     }
 
-    public function testDecryptExpressiveConfigWithArray()
+    public function testIsCallableValidCommand()
     {
-        $ciphertext = $this->crypt->encrypt(self::TEST_MESSAGE, self::TEST_KEY);
-        $config = [
-            'plaintext' => self::TEST_MESSAGE,
-            'encrypted' => "ENC[defuse/php-encryption,$ciphertext]",
-        ];
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
 
-        $generator = $this->crypt::decryptExpressiveConfig($config, self::TEST_KEY);
-        $config = [];
-        foreach ($generator() as $data) {
-            $config = array_replace_recursive($config, $data);
-        }
-        $this->assertEquals(self::TEST_MESSAGE, $config['plaintext']);
-        $this->assertEquals(self::TEST_MESSAGE, $config['encrypted']);
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $this->assertTrue($adapter->isCallable('anycommand'));
     }
 
-    public function testDecryptExpressiveConfigWithGenerator()
+    public function testIsCallableInvalidCommand()
     {
-        $config = function () {
-            $ciphertext = $this->crypt->encrypt(self::TEST_MESSAGE, self::TEST_KEY);
-            return [
-                [
-                    'plaintext' => self::TEST_MESSAGE,
-                    'encrypted' => "ENC[defuse/php-encryption,$ciphertext]",
-                ]
-            ];
-        };
+        $this->client->getExitStatus()->willReturn(1);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
 
-        $generator = $this->crypt::decryptExpressiveConfig($config, self::TEST_KEY);
-        $config = [];
-        foreach ($generator() as $data) {
-            $config = array_replace_recursive($config, $data);
-        }
-        $this->assertEquals(self::TEST_MESSAGE, $config['plaintext']);
-        $this->assertEquals(self::TEST_MESSAGE, $config['encrypted']);
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $this->assertFalse($adapter->isCallable('anycommand'));
     }
 
+    public function testRunShellCommand()
+    {
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $this->assertInternalType('string', $adapter->runShellCommand('anycommand'));
+    }
+
+    public function testRunShellCommandThrowsExceptionOnError()
+    {
+        $this->client->getExitStatus()->willReturn(1);
+        /** @var SSH2 $client */
+        $client = $this->client->reveal();
+
+        $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
+        $this->expectException(\ConductorCore\Exception\RuntimeException::class);
+        $adapter->runShellCommand('anycommand');
+    }
 }

@@ -58,6 +58,9 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @throws Exception\RuntimeException if authentication fails
+     */
     private function authenticate()
     {
         if ($this->key) {
@@ -83,7 +86,7 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
     public function isCallable($command): bool
     {
         $this->authenticate();
-        $this->sshClient->exec('which ' . escapeshellarg($command) . ' &>/dev/null');
+        $this->sshClient->exec('which ' . escapeshellarg($command));
         return (0 === $this->sshClient->getExitStatus());
     }
 

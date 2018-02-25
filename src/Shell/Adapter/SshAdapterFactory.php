@@ -2,17 +2,16 @@
 
 namespace ConductorSshSupport\Shell\Adapter;
 
+use ConductorSshSupport\Exception;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use League\Flysystem\Azure\AzureAdapter;
-use MicrosoftAzure\Storage\Blob\Internal\IBlob;
-use MicrosoftAzure\Storage\Common\ServicesBuilder;
+use phpseclib\Net\SSH2;
 use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
 use Zend\ServiceManager\Factory\FactoryInterface;
-use ConductorAzureBlobFilesystemSupport\Exception;
 
-class AzureAdapterFactory implements FactoryInterface
+class SshAdapterFactory implements FactoryInterface
 {
 
     /**
@@ -32,28 +31,27 @@ class AzureAdapterFactory implements FactoryInterface
     {
         $this->validateOptions($options);
 
-        $client = $options['client'];
-        $azureContainer = $options['container'];
-        $prefix = isset($options['prefix']) ? $options['prefix'] : null;
+        $clientOptions = $options['client'];
+        $client = new SSH2($clientOptions['host'], $clientOptions['port'] ?? 22, $clientOptions['timeout'] ?? 10);
 
-        $endpoint = sprintf(
-            'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
-            $client['account_name'],
-            $client['account_key']
+        return new SshAdapter(
+            $client,
+            $clientOptions['username'],
+            $clientOptions['key'] ?? null,
+            $clientOptions['password'] ?? null
         );
-        /** @var IBlob $blobRestProxy */
-        $blobRestProxy = ServicesBuilder::getInstance()->createBlobService($endpoint);
-        return new AzureAdapter($blobRestProxy, $azureContainer, $prefix);
     }
 
     /**
+     *
      * @param array $options
+     *
      * @throws Exception\InvalidArgumentException if options invalid
      */
     private function validateOptions(array $options): void
     {
-        $requiredOptions = ['ssh'];
-        $allowedOptions = ['ssh'];
+        $requiredOptions = ['client'];
+        $allowedOptions = ['client'];
 
         $missingRequiredOptions = array_diff($requiredOptions, array_keys($options));
         if ($missingRequiredOptions) {

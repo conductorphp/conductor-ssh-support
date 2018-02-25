@@ -5,29 +5,74 @@
 
 namespace ConductorSshSupport\Shell\Adapter;
 
+use ConductorCore\Exception;
 use ConductorCore\Shell\Adapter\ShellAdapterInterface;
+use phpseclib\Crypt\RSA;
+use phpseclib\Net\SSH2;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use phpseclib\Net\SSH2;
 
 /**
  * Class ConductorSshSupportRefreshAssets
  *
  * @package ConductorSshSupport
  */
-class SshAdapter implements ShellAdapterInterface
+class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
 {
+    /**
+     * @var SSH2
+     */
+    private $sshClient;
+    /**
+     * @var string
+     */
+    private $username;
+    /**
+     * @var string
+     */
+    private $key;
+    /**
+     * @var string
+     */
+    private $password;
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(SSH2 $sshConnection, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        SSH2 $sshClient,
+        string $username,
+        string $key = null,
+        string $password = null,
+        LoggerInterface $logger = null
+    ) {
+        $this->sshClient = $sshClient;
+        $this->username = $username;
+        $this->key = $key;
+        $this->password = $password;
         if (is_null($logger)) {
             $logger = new NullLogger();
         }
         $this->logger = $logger;
+    }
+
+    private function authenticate()
+    {
+        if ($this->key) {
+            $key = new RSA();
+            if ($this->password) {
+                $key->setPassword($this->password);
+            }
+            $key->loadKey($this->key);
+        } else {
+            $key = $this->password;
+        }
+
+        if (!$this->sshClient->login($this->username, $key)) {
+            throw new Exception\RuntimeException('Could not authenticate SSH2 adapter.');
+        }
     }
 
     /**
@@ -37,15 +82,16 @@ class SshAdapter implements ShellAdapterInterface
      */
     public function isCallable($command): bool
     {
-        exec('which ' . escapeshellarg($command) . ' &>/dev/null', $output, $return);
-        return 0 === $return;
+        $this->authenticate();
+        $this->sshClient->exec('which ' . escapeshellarg($command) . ' &>/dev/null');
+        return (0 === $this->sshClient->getExitStatus());
     }
 
     /**
      * @param            $command
-     * @param null       $cwd          Current working directory to pass to proc_open
-     * @param array|null $env          Environment variables to pass to proc_open
-     * @param array|null $otherOptions Other options to pass to proc_open
+     * @param null       $currentWorkingDirectory Current working directory to pass to proc_open
+     * @param array|null $environmentVariables    Environment variables to pass to proc_open
+     * @param array|null $options                 Other options to pass to proc_open
      *
      * @throws Exception\RuntimeException if command exits with non-zero status
      * @return string Standard output from the command
@@ -53,11 +99,17 @@ class SshAdapter implements ShellAdapterInterface
     public function runShellCommand(
         string $command,
         int $priority = shellAdapterInterface::PRIORITY_NORMAL,
-        string $cwd = null,
-        array $env = null,
-        array $otherOptions = null
+        string $currentWorkingDirectory = null,
+        array $environmentVariables = null,
+        array $options = null
     ): string {
+        $this->authenticate();
         $this->logger->debug("Running shell command: $command");
+
+        if ($currentWorkingDirectory) {
+            $command = 'cd ' . escapeshellarg($currentWorkingDirectory) . ' && ';
+        }
+
         if (shellAdapterInterface::PRIORITY_LOW == $priority) {
             $command = 'ionice -c3 nice -n 19 bash -c ' . escapeshellarg($command);
         } elseif (shellAdapterInterface::PRIORITY_HIGH == $priority) {
@@ -69,49 +121,16 @@ class SshAdapter implements ShellAdapterInterface
             }
         }
 
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],  // stdin
-            1 => ['pipe', 'w'],  // stdout
-            2 => ['pipe', 'w'],  // stderr
-        ];
-        $process = proc_open($command, $descriptorSpec, $pipes, $cwd, $env, $otherOptions);
-        if (!is_resource($process)) {
-            throw new Exception\RuntimeException(sprintf('Failed to open process for command "%s".', $command));
-        }
+        $output = $this->sshClient->exec($command);
+        $stdErr = $this->sshClient->getStdError();
+        $exitStatus = $this->sshClient->getExitStatus();
 
-        while ($line = fgets($pipes[2])) {
-            // Do not log empty output lines
-            if (!trim($line)) {
-                continue;
-            }
-            // stderr is really any output other than the command's primary output. We cannot assume this is
-            // error output.
-            $this->logger->debug($line);
-        }
-
-        $stdout = stream_get_contents($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
-        if ($stderr) {
-            $this->logger->debug($stderr);
-        }
-
-        fclose($pipes[0]);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-
-        if (0 != proc_close($process)) {
+        $this->logger->debug($stdErr);
+        if (0 !== $exitStatus) {
             throw new Exception\RuntimeException("An error occurred while running shell command: \"$command\"");
         }
 
-        return $stdout;
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
+        return $output;
     }
 
     /**

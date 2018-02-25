@@ -79,9 +79,7 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
     }
 
     /**
-     * @param string $command
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function isCallable($command): bool
     {
@@ -91,19 +89,13 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
     }
 
     /**
-     * @param            $command
-     * @param null       $currentWorkingDirectory Current working directory to pass to proc_open
-     * @param array|null $environmentVariables    Environment variables to pass to proc_open
-     * @param array|null $options                 Other options to pass to proc_open
-     *
-     * @throws Exception\RuntimeException if command exits with non-zero status
-     * @return string Standard output from the command
+     * @inheritdoc
      */
     public function runShellCommand(
         string $command,
-        int $priority = shellAdapterInterface::PRIORITY_NORMAL,
         string $currentWorkingDirectory = null,
         array $environmentVariables = null,
+        int $priority = shellAdapterInterface::PRIORITY_NORMAL,
         array $options = null
     ): string {
         $this->authenticate();

@@ -101,6 +101,12 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
         $this->authenticate();
         $this->logger->debug("Running shell command: $command");
 
+        if ($environmentVariables) {
+            foreach ($environmentVariables as $key => $value) {
+                $command = escapeshellcmd($key) . '=' . escapeshellarg($value) . ' && ' . $command;
+            }
+        }
+
         if ($currentWorkingDirectory) {
             $command = 'cd ' . escapeshellarg($currentWorkingDirectory) . ' && ' . $command;
         }

@@ -95,7 +95,7 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
         string $command,
         string $currentWorkingDirectory = null,
         array $environmentVariables = null,
-        int $priority = shellAdapterInterface::PRIORITY_NORMAL,
+        int $priority = ShellAdapterInterface::PRIORITY_NORMAL,
         array $options = null
     ): string {
         $this->authenticate();
@@ -111,9 +111,9 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
             $command = 'cd ' . escapeshellarg($currentWorkingDirectory) . ' && ' . $command;
         }
 
-        if (shellAdapterInterface::PRIORITY_LOW == $priority) {
+        if (ShellAdapterInterface::PRIORITY_LOW == $priority) {
             $command = 'ionice -c3 nice -n 19 bash -c ' . escapeshellarg($command);
-        } elseif (shellAdapterInterface::PRIORITY_HIGH == $priority) {
+        } elseif (ShellAdapterInterface::PRIORITY_HIGH == $priority) {
             $command = 'nice -n -19 bash -c ' . escapeshellarg($command);
             if (0 == posix_getuid()) {
                 $command = 'ionice -c 1 -n 0 ' . $command;

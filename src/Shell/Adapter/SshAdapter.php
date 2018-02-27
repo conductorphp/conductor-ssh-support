@@ -114,7 +114,6 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
         if (ShellAdapterInterface::PRIORITY_LOW == $priority) {
             $command = 'ionice -c3 nice -n 19 bash -c ' . escapeshellarg($command);
         } elseif (ShellAdapterInterface::PRIORITY_HIGH == $priority) {
-            $command = 'nice -n -19 bash -c ' . escapeshellarg($command);
             if (0 == posix_getuid()) {
                 $command = 'ionice -c 1 -n 0 ' . $command;
             } else {

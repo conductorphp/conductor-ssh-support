@@ -3,7 +3,7 @@
     "description": "Conductor: SSH Support",
     "type": "library",
     "homepage": "https://github.com/conductorphp/conductor-ssh-support",
-    "license": "Apache 2.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Kirk Madera",

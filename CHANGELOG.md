@@ -1,14 +1,9 @@
-Conductor: SSH Support
-===============
+# Changelog
+All notable changes to this project will be documented in this file.
 
-# 0.9.2
-- Fixed license per https://spdx.org/licenses/
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# 0.9.1
-- Updated to require conductor/core:~0.9.2 instead of dev-master
-
-# 0.9.0
-- Tagged for initialo consistency with other modules
-
-# 1.0.0 (Unreleased)
-- Initial release
+## [1.0.0] - 2021-01-21
+### Added
+- Added support for managing SSH connections.

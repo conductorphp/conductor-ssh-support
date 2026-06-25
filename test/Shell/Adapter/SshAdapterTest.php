@@ -2,6 +2,7 @@
 
 namespace ConductorSshSupportTest;
 
+use Prophecy\PhpUnit\ProphecyTrait;
 use ConductorSshSupport\Shell\Adapter\SshAdapter;
 use phpseclib\Crypt\RSA;
 use phpseclib\Net\SSH2;
@@ -11,12 +12,14 @@ use Prophecy\Prophecy\ProphecyInterface;
 
 class SshAdapterTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var ProphecyInterface
      */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         $client = $this->prophesize(SSH2::class);
         $client->login(Argument::type('string'), Argument::type('string'))->willReturn(true);
@@ -91,7 +94,7 @@ class SshAdapterTest extends TestCase
         $client = $this->client->reveal();
 
         $adapter = new SshAdapter($client, 'anyusername', null, 'anypassword');
-        $this->assertInternalType('string', $adapter->runShellCommand('anycommand'));
+        $this->assertIsString($adapter->runShellCommand('anycommand'));
     }
 
     public function testRunShellCommandThrowsExceptionOnError()

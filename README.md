@@ -1,4 +1,9 @@
-Conductor: SSH Support
-====================================
+Conductor SSH Support
+=====================
 
-Allows shell commands to be run on remote servers via SSH.
+This module adds support for SSH connections in 
+[Conductor](https://github.com/conductorphp/conductor-core).
+
+* [Documentation](docs/index.md)
+* [Contributing](https://github.com/conductorphp/conductor-core/blob/master/README.md#contributing)
+* [Report issues](https://github.com/conductorphp/conductor-ssh-support/issues)

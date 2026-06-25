@@ -7,9 +7,9 @@ use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use League\Flysystem\Azure\AzureAdapter;
 use phpseclib\Net\SSH2;
-use Zend\ServiceManager\Exception\ServiceNotCreatedException;
-use Zend\ServiceManager\Exception\ServiceNotFoundException;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
+use Laminas\ServiceManager\Exception\ServiceNotFoundException;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class SshAdapterFactory implements FactoryInterface
 {
@@ -27,7 +27,7 @@ class SshAdapterFactory implements FactoryInterface
      *     creating a service.
      * @throws ContainerException if any other error occurs
      */
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         $this->validateOptions($options);
 

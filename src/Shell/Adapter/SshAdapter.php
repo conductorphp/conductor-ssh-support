@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Kirk Madera <kmadera@robofirm.com>
+ * @author Kirk Madera <kirk.madera@rmgmedia.com>
  */
 
 namespace ConductorSshSupport\Shell\Adapter;
@@ -44,9 +44,9 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
     public function __construct(
         SSH2 $sshClient,
         string $username,
-        string $key = null,
-        string $password = null,
-        LoggerInterface $logger = null
+        ?string $key = null,
+        ?string $password = null,
+        ?LoggerInterface $logger = null
     ) {
         $this->sshClient = $sshClient;
         $this->username = $username;
@@ -93,10 +93,10 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
      */
     public function runShellCommand(
         string $command,
-        string $currentWorkingDirectory = null,
-        array $environmentVariables = null,
+        ?string $currentWorkingDirectory = null,
+        ?array $environmentVariables = null,
         int $priority = ShellAdapterInterface::PRIORITY_NORMAL,
-        array $options = null
+        ?array $options = null
     ): string {
         $this->authenticate();
         $this->logger->debug("Running shell command: $command");

@@ -5,8 +5,7 @@ namespace ConductorSshSupport\Shell\Adapter;
 use ConductorSshSupport\Exception;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
-use League\Flysystem\Azure\AzureAdapter;
-use phpseclib\Net\SSH2;
+use phpseclib3\Net\SSH2;
 use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
 use Laminas\ServiceManager\Exception\ServiceNotFoundException;
 use Laminas\ServiceManager\Factory\FactoryInterface;
@@ -58,7 +57,7 @@ class SshAdapterFactory implements FactoryInterface
             throw new Exception\InvalidArgumentException(
                 sprintf(
                     'Missing %s constructor options: %s',
-                    AzureAdapter::class,
+                    SshAdapter::class,
                     implode(', ', $missingRequiredOptions)
                 )
             );
@@ -69,7 +68,7 @@ class SshAdapterFactory implements FactoryInterface
             throw new Exception\InvalidArgumentException(
                 sprintf(
                     'Invalid %s constructor options: %s',
-                    AzureAdapter::class,
+                    SshAdapter::class,
                     implode(', ', $disallowedOptions)
                 )
             );

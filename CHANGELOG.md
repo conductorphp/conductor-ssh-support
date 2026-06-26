@@ -1,3 +1,10 @@
+[3.0.0](https://github.com/conductorphp/conductor-ssh-support/compare/2.0.0...3.0.0) (2026-06-26)
+
+### Bug Fixes
+* to phpseclib 3 and conductor 2.0 (CTAP-776) ([b665968](https://github.com/conductorphp/conductor-ssh-support/commit/b665968dbb5d3016379e7244b6fb766a67570f3d))
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [1.0.1](https://github.com/conductorphp/conductor-ssh-support/compare/1.0.0...1.0.1) (2026-06-25)
 
 ### Bug Fixes

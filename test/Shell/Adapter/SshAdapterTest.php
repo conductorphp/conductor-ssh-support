@@ -4,8 +4,8 @@ namespace ConductorSshSupportTest;
 
 use Prophecy\PhpUnit\ProphecyTrait;
 use ConductorSshSupport\Shell\Adapter\SshAdapter;
-use phpseclib\Crypt\RSA;
-use phpseclib\Net\SSH2;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Net\SSH2;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ProphecyInterface;
@@ -46,7 +46,8 @@ class SshAdapterTest extends TestCase
         /** @var SSH2 $client */
         $client = $this->client->reveal();
 
-        $adapter = new SshAdapter($client, 'anyusername', 'anykey');
+        $key = (string) RSA::createKey();
+        $adapter = new SshAdapter($client, 'anyusername', $key);
         $this->assertTrue($adapter->isCallable('anycommand'));
     }
 
@@ -56,7 +57,8 @@ class SshAdapterTest extends TestCase
         /** @var SSH2 $client */
         $client = $this->client->reveal();
 
-        $adapter = new SshAdapter($client, 'anyusername', 'anykey', 'anypassword');
+        $key = RSA::createKey()->withPassword('anypassword')->toString('PKCS8');
+        $adapter = new SshAdapter($client, 'anyusername', $key, 'anypassword');
         $this->assertTrue($adapter->isCallable('anycommand'));
     }
 

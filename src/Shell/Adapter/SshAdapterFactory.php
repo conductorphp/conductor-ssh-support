@@ -3,31 +3,13 @@
 namespace ConductorSshSupport\Shell\Adapter;
 
 use ConductorSshSupport\Exception;
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
-use League\Flysystem\Azure\AzureAdapter;
-use phpseclib\Net\SSH2;
-use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
-use Laminas\ServiceManager\Exception\ServiceNotFoundException;
+use phpseclib3\Net\SSH2;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class SshAdapterFactory implements FactoryInterface
 {
-
-    /**
-     * Create an object
-     *
-     * @param  ContainerInterface $container
-     * @param  string             $requestedName
-     * @param  null|array         $options
-     *
-     * @return object
-     * @throws ServiceNotFoundException if unable to resolve the service.
-     * @throws ServiceNotCreatedException if an exception is raised when
-     *     creating a service.
-     * @throws ContainerException if any other error occurs
-     */
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null): SshAdapter
     {
         $this->validateOptions($options);
 
@@ -58,7 +40,7 @@ class SshAdapterFactory implements FactoryInterface
             throw new Exception\InvalidArgumentException(
                 sprintf(
                     'Missing %s constructor options: %s',
-                    AzureAdapter::class,
+                    SshAdapter::class,
                     implode(', ', $missingRequiredOptions)
                 )
             );
@@ -69,7 +51,7 @@ class SshAdapterFactory implements FactoryInterface
             throw new Exception\InvalidArgumentException(
                 sprintf(
                     'Invalid %s constructor options: %s',
-                    AzureAdapter::class,
+                    SshAdapter::class,
                     implode(', ', $disallowedOptions)
                 )
             );

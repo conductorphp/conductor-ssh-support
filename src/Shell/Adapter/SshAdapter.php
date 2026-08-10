@@ -7,8 +7,8 @@ namespace ConductorSshSupport\Shell\Adapter;
 
 use ConductorCore\Exception;
 use ConductorCore\Shell\Adapter\ShellAdapterInterface;
-use phpseclib\Crypt\RSA;
-use phpseclib\Net\SSH2;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Net\SSH2;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -64,11 +64,7 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
     private function authenticate()
     {
         if ($this->key) {
-            $key = new RSA();
-            if ($this->password) {
-                $key->setPassword($this->password);
-            }
-            $key->loadKey($this->key);
+            $key = PublicKeyLoader::load($this->key, $this->password ?? false);
         } else {
             $key = $this->password;
         }

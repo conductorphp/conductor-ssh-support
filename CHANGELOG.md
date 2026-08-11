@@ -1,3 +1,10 @@
+[4.1.1](https://github.com/conductorphp/conductor-ssh-support/compare/4.1.0...4.1.1) (2026-08-11)
+
+### Bug Fixes
+* to phpunit 13 (CTAP-1226) ([beb65dc](https://github.com/conductorphp/conductor-ssh-support/commit/beb65dc11ca10528c1b05cb17bab7fb39df73122))
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [4.1.0](https://github.com/conductorphp/conductor-ssh-support/compare/4.0.0...4.1.0) (2026-08-10)
 
 ### Features

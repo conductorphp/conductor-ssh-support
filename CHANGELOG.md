@@ -1,3 +1,8 @@
+[5.0.0](https://github.com/conductorphp/conductor-ssh-support/compare/4.1.1...5.0.0) (2026-09-08)
+
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [4.1.1](https://github.com/conductorphp/conductor-ssh-support/compare/4.1.0...4.1.1) (2026-08-11)
 
 ### Bug Fixes

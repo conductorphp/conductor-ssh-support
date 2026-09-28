@@ -123,7 +123,14 @@ class SshAdapter implements ShellAdapterInterface, LoggerAwareInterface
 
         $this->logger->debug($stdErr);
         if (0 !== $exitStatus) {
-            throw new Exception\RuntimeException("An error occurred while running shell command: \"$command\"");
+            // phpseclib reports false when the channel closed without a status; -1 stands in for it.
+            throw new Exception\ShellCommandFailedException(
+                $command,
+                is_int($exitStatus) ? $exitStatus : -1,
+                (string) $output,
+                (string) $stdErr,
+                "An error occurred while running shell command: \"$command\""
+            );
         }
 
         return $output;

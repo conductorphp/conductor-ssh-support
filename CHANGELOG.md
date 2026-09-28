@@ -1,3 +1,10 @@
+[5.2.1](https://github.com/conductorphp/conductor-ssh-support/compare/5.2.0...5.2.1) (2026-09-28)
+
+### Bug Fixes
+* failed remote command throws ShellCommandFailedException (CTAP-2006) ([616ad90](https://github.com/conductorphp/conductor-ssh-support/commit/616ad901f778a51eaff1d2f577c59c03eb928467))
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [5.2.0](https://github.com/conductorphp/conductor-ssh-support/compare/5.1.0...5.2.0) (2026-09-16)
 
 ### Features

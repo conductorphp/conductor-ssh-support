@@ -1,6 +1,6 @@
 {
   "name": "conductor/ssh-support",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Conductor SSH Support",
   "type": "library",
   "homepage": "https://github.com/conductorphp/conductor-ssh-support",

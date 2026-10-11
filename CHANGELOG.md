@@ -1,3 +1,10 @@
+[6.0.1](https://github.com/conductorphp/conductor-ssh-support/compare/6.0.0...6.0.1) (2026-10-11)
+
+### Bug Fixes
+* 6 for master (CTAP-1763) ([d01cdab](https://github.com/conductorphp/conductor-ssh-support/commit/d01cdabdae2ab9b1966ea6982b9a8266fbbe65cc))
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [6.0.0](https://github.com/conductorphp/conductor-ssh-support/compare/5.2.1...6.0.0) (2026-10-11)
 
 ### Features

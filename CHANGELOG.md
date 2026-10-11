@@ -1,3 +1,12 @@
+[6.0.0](https://github.com/conductorphp/conductor-ssh-support/compare/5.2.1...6.0.0) (2026-10-11)
+
+### Features
+* conductor/core ^7.0 (CTAP-1760) ([f93164d](https://github.com/conductorphp/conductor-ssh-support/commit/f93164d66e872b3e3769481c6c2a3f4feafc1662))
+* conductor/core ^6.0 (CTAP-1741) ([0d3cb33](https://github.com/conductorphp/conductor-ssh-support/commit/0d3cb33644f7b19090ae7abb3fe959aa0b27a872))
+* conductor/core ^5.0 (CTAP-1712) ([49eecf7](https://github.com/conductorphp/conductor-ssh-support/commit/49eecf7e6d43fa2fb4b74d0831463b61a0e531b0))
+
+<!--- CHANGELOG SPLIT MARKER -->
+
 [5.2.1](https://github.com/conductorphp/conductor-ssh-support/compare/5.2.0...5.2.1) (2026-09-28)
 
 ### Bug Fixes
